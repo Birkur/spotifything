@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Birk is currently playing:</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #1e1e1e;
+            color: white;
+        }
+        h1 {
+            font-size: 2.5em;
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 20px;
+            color: #f4d03f;
+        }
+        h3 {
+            font-size: 1.5em;
+            margin-top: 10px;
+            color: #a29bfe;
+        }
+        p {
+            font-size: 1.2em;
+            margin-top: 15px;
+            font-style: italic;
+            color: #ff7675;
+        }
+        img {
+            width: 300px;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
+        }
+        #loading {
+            font-size: 1.2em;
+            color: #bdc3c7;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 DJ Birk is currently playing:</h1>
+    <h2 id="song-title">Ingen sang spilles</h2>
+    <h3 id="artist-name"></h3>
+    <p id="song-text"></p> <!-- 🔥 Felt for spesialtekst om sangen -->
+    <p id="loading"></p>
+
+    <img id="album-cover" src="" alt="Album cover">
+
+    <script>
+        async function fetchCurrentSong() {
+            document.getElementById("loading").style.display = "block"; // Vis "loading" mens vi henter data
+            try {
+                const response = await fetch("/current-song");
+                const data = await response.json();
+
+                if (!data.error) {
+                    document.getElementById("song-title").innerText = data.song;
+                    document.getElementById("artist-name").innerText = data.artist;
+                    document.getElementById("album-cover").src = data.image;
+                    
+                    // 🔹 Hvis sangen har en tekst, vis den – ellers skjul feltet
+                    if (data.text) {
+                        document.getElementById("song-text").innerText = data.text;
+                    } else {
+                        document.getElementById("song-text").innerText = "";
+                    }
+                } else {
+                    document.getElementById("song-title").innerText = "Ingen sang spilles";
+                    document.getElementById("artist-name").innerText = "";
+                    document.getElementById("album-cover").src = "";
+                    document.getElementById("song-text").innerText = "";
+                }
+            } catch (error) {
+                console.error("Feil ved henting av sang:", error);
+            } finally {
+                document.getElementById("loading").style.display = "none"; // Skjul "loading" etter henting
+            }
+        }
+
+        // Oppdater hvert 5. sekund
+        setInterval(fetchCurrentSong, 5000);
+        fetchCurrentSong(); // Kjør umiddelbart ved lasting
+    </script>
+</body>
+</html>
